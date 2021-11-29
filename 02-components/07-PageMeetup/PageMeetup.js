@@ -14,7 +14,7 @@ export default defineComponent({
   },
 
   props: {
-    'meetup-id': {
+    meetupId: {
       type: Number,
       required: true,
     },
