@@ -17,9 +17,7 @@ export default {
   },
   computed: {
     background() {
-      return this.image
-        ? `linear-gradient(0deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${this.image})`
-        : 'linear-gradient(0deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), var(--default-cover)';
+      return this.image ? `url(${this.image})` : 'var(--default-cover)';
     },
   },
 };
@@ -29,7 +27,7 @@ export default {
 .meetup-cover {
   background-size: cover;
   background-position: center;
-  background-image: v-bind(background);
+  background-image: linear-gradient(0deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), v-bind(background);
   display: flex;
   flex-direction: column;
   align-items: center;
