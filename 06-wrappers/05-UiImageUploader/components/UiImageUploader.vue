@@ -1,8 +1,20 @@
 <template>
   <div class="image-uploader">
-    <label class="image-uploader__preview image-uploader__preview-loading" style="--bg-url: url('/link.jpeg')">
-      <span class="image-uploader__text">Загрузить изображение</span>
-      <input type="file" accept="image/*" class="image-uploader__input" />
+    <label
+      class="image-uploader__preview"
+      :class="{ 'image-uploader__preview-loading': isLoading }"
+      :style="`--bg-url: url('${imgUrl}')`"
+      @click="onClick"
+    >
+      <span class="image-uploader__text">{{ text }}</span>
+      <input
+        accept="image/*"
+        class="image-uploader__input"
+        ref="input"
+        v-bind="$attrs"
+        type="file"
+        @change="onChangeImage"
+      />
     </label>
   </div>
 </template>
@@ -10,6 +22,64 @@
 <script>
 export default {
   name: 'UiImageUploader',
+
+  inheritAttrs: false,
+
+  props: {
+    preview: {
+      type: String,
+    },
+    uploader: {
+      type: Function,
+    },
+  },
+
+  emits: ['remove', 'select', 'upload', 'error'],
+
+  data() {
+    return {
+      isLoading: false,
+      imgUrl: this.preview,
+    };
+  },
+
+  computed: {
+    text() {
+      if (this.isLoading) return 'Загрузка...';
+      if (this.imgUrl) return 'Удалить изображение';
+      else return 'Загрузить изображение';
+    },
+  },
+
+  methods: {
+    onClick(event) {
+      if (this.isLoading || this.imgUrl) event.preventDefault();
+      if (!this.isLoading && this.imgUrl) this.removeImage();
+    },
+    onChangeImage(event) {
+      const file = event.target.files[0];
+      this.imgUrl = URL.createObjectURL(file);
+      this.$emit('select', file);
+      if (this.uploader) this.uploadFile(file);
+    },
+    removeImage() {
+      this.imgUrl = null;
+      this.$refs.input.value = '';
+      this.$emit('remove');
+    },
+    async uploadFile(file) {
+      try {
+        this.isLoading = true;
+        const result = await this.uploader(file);
+        this.$emit('upload', result);
+      } catch (error) {
+        this.removeImage();
+        this.$emit('error', error);
+      } finally {
+        this.isLoading = false;
+      }
+    },
+  },
 };
 </script>
 

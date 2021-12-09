@@ -1,13 +1,29 @@
 <template>
-  <div class="input-group input-group_icon input-group_icon-left input-group_icon-right">
-    <div class="input-group__icon">
-      <img class="icon" alt="icon" />
+  <div
+    class="input-group"
+    :class="{
+      'input-group_icon': hasLeftIcon() || hasRightIcon(),
+      'input-group_icon-left': hasLeftIcon(),
+      'input-group_icon-right': hasRightIcon(),
+    }"
+  >
+    <div v-if="$slots['left-icon']" class="input-group__icon">
+      <slot name="left-icon"></slot>
     </div>
 
-    <input ref="input" class="form-control form-control_rounded form-control_sm" />
+    <component
+      :is="tag"
+      :value="model"
+      ref="input"
+      class="form-control"
+      :class="{ 'form-control_sm': small, 'form-control_rounded': rounded }"
+      v-bind="$attrs"
+      @input="onInputField"
+      @change="onChangeField"
+    />
 
-    <div class="input-group__icon">
-      <img class="icon" alt="icon" />
+    <div v-if="$slots['right-icon']" class="input-group__icon">
+      <slot name="right-icon"></slot>
     </div>
   </div>
 </template>
@@ -15,6 +31,61 @@
 <script>
 export default {
   name: 'UiInput',
+
+  inheritAttrs: false,
+
+  props: {
+    small: {
+      type: Boolean,
+    },
+    rounded: {
+      type: Boolean,
+    },
+    multiline: {
+      type: Boolean,
+    },
+    modelValue: {
+      type: String,
+    },
+    modelModifiers: {
+      default: () => ({}),
+    },
+  },
+
+  emits: ['update:modelValue'],
+
+  computed: {
+    tag() {
+      if (this.multiline) return 'textarea';
+      return 'input';
+    },
+    model: {
+      get() {
+        return this.modelValue;
+      },
+      set(value) {
+        this.$emit('update:modelValue', value);
+      },
+    },
+  },
+
+  methods: {
+    focus() {
+      this.$refs.input.focus();
+    },
+    hasLeftIcon() {
+      return Boolean(this.$slots['left-icon']);
+    },
+    hasRightIcon() {
+      return Boolean(this.$slots['right-icon']);
+    },
+    onInputField(event) {
+      if (!this.modelModifiers.lazy) this.model = event.target.value;
+    },
+    onChangeField(event) {
+      if (this.modelModifiers.lazy) this.model = event.target.value;
+    },
+  },
 };
 </script>
 
