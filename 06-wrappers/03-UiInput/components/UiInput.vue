@@ -18,8 +18,7 @@
       class="form-control"
       :class="{ 'form-control_sm': small, 'form-control_rounded': rounded }"
       v-bind="$attrs"
-      @input="onInputField"
-      @change="onChangeField"
+      @[eventType]="onChangeField"
     />
 
     <div v-if="$slots['right-icon']" class="input-group__icon">
@@ -67,6 +66,9 @@ export default {
         this.$emit('update:modelValue', value);
       },
     },
+    eventType() {
+      return this.modelModifiers.lazy ? 'change' : 'input';
+    },
   },
 
   methods: {
@@ -79,11 +81,8 @@ export default {
     hasRightIcon() {
       return Boolean(this.$slots['right-icon']);
     },
-    onInputField(event) {
-      if (!this.modelModifiers.lazy) this.model = event.target.value;
-    },
     onChangeField(event) {
-      if (this.modelModifiers.lazy) this.model = event.target.value;
+      this.model = event.target.value;
     },
   },
 };

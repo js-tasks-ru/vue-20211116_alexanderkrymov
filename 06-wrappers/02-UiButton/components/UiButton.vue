@@ -1,5 +1,7 @@
 <template>
-  <component :is="tag" class="button" :class="classList" v-bind="attrs"><slot></slot></component>
+  <component :is="tag" class="button" :class="[{ button_block: block }, btnVariant]" v-bind="attrs">
+    <slot></slot>
+  </component>
 </template>
 
 <script>
@@ -22,15 +24,12 @@ export default {
   },
 
   computed: {
-    classList() {
-      const variantsBtn = {
+    btnVariant() {
+      return {
         primary: 'button_primary',
         secondary: 'button_secondary',
         danger: 'button_danger',
-      };
-      const result = [variantsBtn[this.variant]];
-      if (this.block) result.push('button_block');
-      return result;
+      }[this.variant];
     },
     attrs() {
       return this.tag === 'button' && !this.$attrs.type ? { type: 'button' } : {};

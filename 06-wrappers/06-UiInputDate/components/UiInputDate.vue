@@ -1,5 +1,5 @@
 <template>
-  <ui-input ref="input" v-model="model" :type="type">
+  <ui-input ref="input" v-model="model" :type="type" @input="onInput">
     <template v-for="slotName of Object.keys($slots)" #[slotName]>
       <slot :name="slotName" />
     </template>
@@ -43,15 +43,12 @@ export default {
       get() {
         return this.modelValue ? this.localDate[this.type] : '';
       },
-      set() {
-        const values = {
-          time: (value) => `${this.dateISO.substring(0, 11)}${value}${this.dateISO.substring(16, 24)}`,
-          date: (value) => `${value}${this.dateISO.substring(10, 24)}`,
-          'datetime-local': (value) => `${value}${this.dateISO.substring(16, 24)}`,
-        };
-        const value = new Date(values[this.type](this.$refs.input.$refs.input.value)).getTime();
-        this.$emit('update:modelValue', value);
-      },
+    },
+  },
+
+  methods: {
+    onInput(event) {
+      this.$emit('update:modelValue', event.target.valueAsNumber);
     },
   },
 };
